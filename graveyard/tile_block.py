@@ -148,6 +148,9 @@ class Tile_block:
         block.append(Tile(block[block_up_11].x, block[block_up_11].y - block[block_up_11].img.get_height(), 1))
         block.append(Tile(block[block_up_12].x, block[block_up_12].y - block[block_up_12].img.get_height(), 2))
         block.append(Tile(block[block_up_13].x, block[block_up_13].y - block[block_up_13].img.get_height(), 3))
+
+        self.hill = {"x": 1280, "y": 724, "width": 384, "height": 256}
+
         return block
 
     def show(self, game_display):

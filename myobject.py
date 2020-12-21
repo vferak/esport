@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 import pygame.gfxdraw
 
+from graveyard.grave_object import Grave_object
 from graveyard.tile_block import Tile_block
 
 
@@ -13,6 +14,7 @@ class MyObject(pygame.sprite.Sprite):
         self.type = type
         self.objectWidth = objectWidth
         self.objectHeight = objectHeight
+        self.direction = 0
 
         self.animationIdle = self.getAnimationIdle()
         self.animationWalking = self.getAnimationWalking()
@@ -24,14 +26,19 @@ class MyObject(pygame.sprite.Sprite):
         self.marginY = (self.rect.height - self.objectHeight) / 2
 
         self.index = 0
-        self.speed = 5
+        self.speed = 6
 
         self.inAir = False
-        self.gravityMultiplier = 1.08
-        self.gravity = 4
+        self.gravityMultiplier = 1.06
+        self.gravity = 5
         self.maxGravity = 40
         self.currentGravity = self.gravity
-        self.jumpForce = 14
+
+        self.jumpCount = 17
+        self.jumpSpeed = 13
+        self.currentJump = 0
+
+        self.boxObjectType = 'crate'
 
     def getAnimationIdle(self):
         return []
@@ -39,10 +46,10 @@ class MyObject(pygame.sprite.Sprite):
     def getAnimationWalking(self):
         return []
 
-    def getAnimationImages(self, name, frames, format='.png'):
+    def getAnimationImages(self, name, frames, zerofill=3, format='.png'):
         images = []
         for i in range(0, frames):
-            img = pygame.image.load(name + str(i).zfill(3) + format)
+            img = pygame.image.load(name + str(i).zfill(zerofill) + format)
             images.append(img)
 
         return images
@@ -51,6 +58,9 @@ class MyObject(pygame.sprite.Sprite):
         self.__checkCollisions(playground)
         self.index = 0 if self.index >= len(self.images) - 1 else self.index + 1
         game_display.blit(self.images[self.index], (self.rect.x, self.rect.y))
+
+    def changeDirection(self):
+        self.direction = 1 if self.direction == -1 else -1
 
     def moveLeft(self):
         self.__moveOnX(-self.speed)
@@ -71,12 +81,19 @@ class MyObject(pygame.sprite.Sprite):
         if not self.inAir:
             self.images = self.animationWalking
             self.inAir = True
-            self.rect.y -= 100 * self.currentGravity
+            self.currentJump = 1
             self.__applyGravity()
 
     def __applyGravity(self):
         self.inAir = True
-        self.rect.y += self.currentGravity
+        if self.currentJump != 0:
+            self.rect.y -= self.jumpSpeed
+            self.currentJump += 1
+        else:
+            self.rect.y += self.currentGravity
+        if self.currentJump == self.jumpCount:
+            self.currentJump = 0
+            self.currentGravity = self.gravity
         if self.currentGravity < self.maxGravity:
             self.currentGravity *= self.gravityMultiplier
 
@@ -98,9 +115,20 @@ class MyObject(pygame.sprite.Sprite):
         rightX = self.rect.width + self.rect.x - self.marginX - xCorrection
 
         for obj in playground:
-            if type(obj) is Tile_block and obj.type is 'tile_block':
+            if type(obj) is Tile_block and obj.type is 'tile_block' or (type(obj) is Grave_object and obj.type == self.boxObjectType):
                 if leftX <= (obj.x + obj.width) and rightX >= obj.x:
                     if feetY > obj.y > feetY - yCorrection:
                         self.inAir = False
                         self.rect.y = obj.y - self.rect.height + self.marginY
                         self.currentGravity = self.gravity
+                if hasattr(obj, 'hill'):
+                    if leftX <= obj.hill['x'] + obj.hill['width'] and rightX >= obj.hill['x']:
+                        if feetY > obj.hill['y'] > feetY - yCorrection:
+                            self.inAir = False
+                            self.rect.y = obj.hill['y'] - self.rect.height + self.marginY
+                            self.currentGravity = self.gravity
+                    elif feetY > obj.hill['y']:
+                        if rightX + xCorrection > obj.hill['x'] > rightX:
+                            self.rect.x = obj.hill['x'] - self.rect.width + self.marginX
+                        elif leftX - xCorrection < obj.hill['x'] + obj.hill['width'] < leftX:
+                            self.rect.x = obj.hill['x'] + obj.hill['width'] - self.marginX

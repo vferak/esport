@@ -79,6 +79,22 @@ class Playground:
         hero.rect.x = 800
         hero.rect.y = 10
 
+        wraith1 = Wraith(self.width, self.height, 0, 0, 400)
+        wraith1.rect.x = 0
+        wraith1.rect.y = 100
+
+        wraith2 = Wraith(self.width, self.height, 0, 0, 1280)
+        wraith2.rect.x = 500
+        wraith2.rect.y = self.height - 200
+
+        scarecrow = Scarecrow(self.width, self.height, 0, 1280, 1664)
+        scarecrow.rect.x = 1550
+        scarecrow.rect.y = 600
+
+        reaper = Reaper(self.width, self.height, 0, 1280, self.width)
+        reaper.rect.x = self.width - 100
+        reaper.rect.y = 50
+
         moveLeft = 0
         moveRight = 0
         while True:
@@ -109,8 +125,20 @@ class Playground:
             elif moveRight > moveLeft:
                 hero.moveRight()
 
+            wraith1.move()
+            wraith2.move()
+
+            scarecrow.move()
+
+            reaper.move()
+
             game_display.blit(self.background, [0, 0])  # Display background
             self.show_playground(game_display)  # Show playground
+
+            wraith1.update(self.playground, game_display)
+            wraith2.update(self.playground, game_display)
+            scarecrow.update(self.playground, game_display)
+            reaper.update(self.playground, game_display)
             hero.update(self.playground, game_display)
 
             pygame.display.update()  # Update of the screen

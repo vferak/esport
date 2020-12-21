@@ -48,6 +48,7 @@ class Grave_object:
         elif type == 13:
             self.type = 'crate'
             self.img = pygame.image.load('GraveyardTilesetNew/png/Objects/Crate.png')
+            self.width = 106
         elif type == 14:
             self.type = 'skeleton'
             self.img = pygame.image.load('GraveyardTilesetNew/png/Objects/Skeleton.png')

@@ -4,6 +4,8 @@ from myobject import MyObject
 class Scarecrow(MyObject):
     def __init__(self, screenWidth, screenHeight, type, leftEdge, rightEdge):
         super(Scarecrow, self).__init__(screenWidth, screenHeight, type, 90, 120)
+        self.speed = 3
+
         self.direction = 1
         self.animationWalkingRight = self.getAnimationWalking()
         self.direction = -1

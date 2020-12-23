@@ -4,6 +4,8 @@ from myobject import MyObject
 class Wraith(MyObject):
     def __init__(self, screenWidth, screenHeight, type, leftEdge, rightEdge):
         super(Wraith, self).__init__(screenWidth, screenHeight, type, 60, 85)
+        self.speed = 3
+
         self.direction = -1
         self.animationWalkingLeft = self.getAnimationWalking()
         self.direction = 1

@@ -130,7 +130,7 @@ class Playground:
 
             scarecrow.move()
 
-            reaper.move()
+            reaper.move(hero)
 
             game_display.blit(self.background, [0, 0])  # Display background
             self.show_playground(game_display)  # Show playground

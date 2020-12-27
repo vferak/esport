@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 import pygame.gfxdraw
+import time
 
 from graveyard.grave_object import Grave_object
 from graveyard.tile_block import Tile_block
@@ -18,6 +19,7 @@ class MyObject(pygame.sprite.Sprite):
 
         self.animationIdle = self.getAnimationIdle()
         self.animationWalking = self.getAnimationWalking()
+        self.animationAttacking = self.getAnimationAttacking()
 
         self.images = self.animationIdle
         self.rect = self.images[0].get_rect()
@@ -26,7 +28,7 @@ class MyObject(pygame.sprite.Sprite):
         self.marginY = (self.rect.height - self.objectHeight) / 2
 
         self.index = 0
-        self.speed = 6
+        self.speed = 5
 
         self.inAir = False
         self.gravityMultiplier = 1.06
@@ -45,12 +47,22 @@ class MyObject(pygame.sprite.Sprite):
 
     def getAnimationWalking(self):
         return []
+    
+    def getAnimationAttacking(self):
+        return []
 
     def getAnimationImages(self, name, frames, zerofill=3, format='.png'):
         images = []
         for i in range(0, frames):
             img = pygame.image.load(name + str(i).zfill(zerofill) + format)
             images.append(img)
+
+        return images
+    
+    def getAnimationImage(self, name, format='.png'):
+        images = []
+        img = pygame.image.load(name + format)
+        images.append(img)
 
         return images
 
@@ -63,14 +75,22 @@ class MyObject(pygame.sprite.Sprite):
         self.direction = 1 if self.direction == -1 else -1
 
     def moveLeft(self):
+        self.speed = 5
         self.__moveOnX(-self.speed)
 
     def moveRight(self):
+        self.speed = 5
         self.__moveOnX(+self.speed)
 
     def idle(self):
         self.images = self.animationIdle
         self.__applyGravity()
+        
+    def die(self):
+        self.images = self.animationDying
+        
+    def attack(self):
+        self.images = self.animationAttacking
 
     def __moveOnX(self, speed):
         self.images = self.animationWalking

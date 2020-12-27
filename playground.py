@@ -5,6 +5,8 @@ from reaper import Reaper
 from scarecrow import Scarecrow
 from graveyard.tile_block import Tile_block
 from graveyard.grave_object import Grave_object
+from numpy import math
+
 
 
 class Playground:
@@ -72,6 +74,7 @@ class Playground:
         @param enemy_types:
         """
         clock = pygame.time.Clock()
+        pygame.font.init()
         pygame.init()
         game_display = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption('Halloween Party')
@@ -97,40 +100,59 @@ class Playground:
 
         moveLeft = 0
         moveRight = 0
+        
+        myfont = pygame.font.SysFont('Comic Sans MS', 40)
+        
+        hero.enemy_list.append(wraith1)
+        hero.enemy_list.append(wraith2)
+        hero.enemy_list.append(reaper)
+        
         while True:
+            textsurface = myfont.render(str(hero.hp), False, (255, 255, 255))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
 
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN and hero.dead == False:
                     if event.key == pygame.K_a:
                         moveLeft = moveRight + 1
                     elif event.key == pygame.K_d:
                         moveRight = moveLeft + 1
 
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_w:
                         hero.jump()
+                        
+                    if event.key == pygame.K_SPACE:
+                        hero.attackEnemy()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         moveLeft = 0
                     elif event.key == pygame.K_d:
                         moveRight = 0
+                    elif event.key == pygame.K_SPACE:
+                        hero.attacking = False
 
-            if moveLeft == 0 and moveRight == 0:
+            if moveLeft == 0 and moveRight == 0 and hero.attacking == False and hero.dead == False:
                 hero.idle()
             elif moveLeft > moveRight:
                 hero.moveLeft()
             elif moveRight > moveLeft:
                 hero.moveRight()
 
-            wraith1.move()
-            wraith2.move()
-
-            scarecrow.move()
-
-            reaper.move(hero)
+            if reaper.dead == False:
+                reaper.move(hero)
+            if wraith1.dead == False:
+                wraith1.move(hero)
+            else:
+                wraith1.die()
+            if wraith2.dead == False:
+                wraith2.move(hero)
+            else:
+                wraith2.die()
+                
+            scarecrow.move(hero)
 
             game_display.blit(self.background, [0, 0])  # Display background
             self.show_playground(game_display)  # Show playground
@@ -140,6 +162,13 @@ class Playground:
             scarecrow.update(self.playground, game_display)
             reaper.update(self.playground, game_display)
             hero.update(self.playground, game_display)
+            
+            if hero.dead == False:
+                textsurface = myfont.render('HP:  ' + str(math.ceil(hero.hp / 30)), False, (255, 255, 255))
+                game_display.blit(textsurface,(20,self.height - 70))
+            else:
+                textsurface = myfont.render('YOU DIED', False, (255, 0, 0))
+                game_display.blit(textsurface,(self.width / 2 - 100, self.height / 2 - 30))
 
             pygame.display.update()  # Update of the screen
             clock.tick(60)
